@@ -36,6 +36,5 @@ function! s:DiffWithSaved()
 endfunction
 com! DiffSaved call s:DiffWithSaved()
 
-cmap w!! %!sudo tee > /dev/null %				                     " Will allow you to use :w!! to write to a file using sudo if you forgot to
-								                                     ""sudo vim file" (it will prompt for sudo password when writing)
+cmap w!! %!sudo tee > /dev/null %		                            " Will allow you to use :w!! to write to a file using sudo
 autocmd BufEnter * execute "chdir ".escape(expand("%:p:h"), ' ')
