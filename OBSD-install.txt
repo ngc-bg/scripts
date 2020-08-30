@@ -1,0 +1,264 @@
+pkg_add -ivV nano vim htop bash fish git colorls toad
+
+NANO{
+# Enable syntax highlighting
+ 
+vim ~/.nanorc
+	include /usr/local/share/nano/*
+}
+
+FISH{
+ # In this section I am describing various fish shell customizations. 
+ # Bash usually has a lot more - further changes will update the walk-trough accordingly.
+ 
+vim ~/.config/fish	
+    set -g -x fish_greeting ''
+	set -x TERM wsvt25 # In case of issues it could be substituted with 'xterm-256color' or plain 'xterm'
+	alias ll="colorls -GlahAFpqFT"
+	alias mc="mc -a"
+	alias less="less -N -m -I"
+	export PAGER=less
+	alias q="mcedit"
+	alias e="vim"
+	alias n="nano"
+	export GTK_OVERLAY_SCROLLING=0
+
+}
+
+pkg_add xfce xfce-extras xfce4-power-manager upower slim slim-themes 
+# I am using Slim as display manager instead the build-in xenodm because it is a personal preference. 
+# Otherwise these two are kinda similar from a system resources perspective.
+# xenodm could be enabled by adding at /etc/rc.conf.local  "xenodm_flags="  
+# Do not forget to disable slim at /etc/rc.local, if already installed/configured!
+
+RC{
+
+rcctl enable apmd
+rcctl set apmd flags -A
+rcctl start apmd
+rcctl enable messagebus
+rcctl start messagebus
+ # These commands actually fill up the respective lines ar /etc/rc.conf.local	
+	vim /etc/rc.conf.local
+		apmd_flags=-A
+		dbus_enable=YES
+		hotplugd_flags=
+		pkg_scripts=messagebus
+
+vim /etc/rc.local
+	/usr/local/bin/slim -d			# Starting Slim via /etc/rc.d/slim, somehow brings constant CPU usage. 
+									# This behavior is not present, when starting it via rc.local. Very strange. Need further investigation...
+
+}
+
+DOAS{	
+cp /etc/exmples/doas.conf /etc/ 
+
+	echo "permit nopass ngc as root cmd mount" >> /etc/doas.conf
+	echo "permit nopass ngc as root cmd umount" >> /etc/doas.conf
+	echo "permit nopass ngc as root cmd ntfs-3g" >> /etc/doas.conf
+	echo "permit persist keepenv ngc" >> /etc/doas.conf
+}
+
+USERMOD{	
+usermod -G wheel ngc				# In order to be able to use su - and doas
+usermod -G staff ngc
+
+ # verify the usermod changes	
+cat /etc/group | grep ngc
+
+cp /etc/examples/wsconstl.conf /etc/
+vim /etc/wsconstl.conf
+	
+	keyboard.bell.volume=0			# Mute the annoy keyboard beep. Optional!
+	display.vblank=on               # enable vertical sync blank for screen burner
+	display.screen_off=160000       # set screen burner timeout to 60 seconds
+	mouse.tp.tapping=1 				# Enable tap action for touch pad. 
+}
+	
+XORG{
+mkdir /etc/X11/xorg.conf.d
+vim /etc/X11/xorg.conf.d/20-intel.conf
+	
+	Section "Device"
+		Identifier "Intel Graphics"
+		Driver "intel"
+		Option "DRI" "3"
+		Option "TearFree" "true"
+		Option "AccelMethod" "sna"
+	EndSection
+
+cp /usr/X11R6/share/X11/xorg.conf.d/70-synaptics.conf /etc/X11/xorg.conf.d/70-synaptics.conf
+vim /etc/X11/xorg.conf.d/70-synaptics.conf
+	
+	Section "InputClass"
+        Identifier "Default clickpad buttons"
+        MatchDriver "synaptics"
+        Option "TapButton1" "1"
+        Option "TapButton2" "2"
+        Option "TapButton3" "3"
+        Option "VertEdgeScroll" "on"
+        Option "HorizEdgeScroll" "on"
+        Option "SoftButtonAreas" "50% 0 82% 0 0 0 0 0"
+        Option "SecondarySoftButtonAreas" "58% 0 0 15% 42% 58% 0 15%"
+	EndSection
+}
+
+PORTS{
+ # Run the following with bash or sh shells. It is doable with fish but we will not focus on the fish specifics
+ # and how to workaround some syntax issues...that is why we have an installed fall back - bash.
+ # Full documentation - https://www.openbsd.org/faq/ports/ports.html
+	
+	cd /tmp
+	ftp https://cdn.openbsd.org/pub/OpenBSD/$(uname -r)/{ports.tar.gz,SHA256.sig}
+	signify -Cp /etc/signify/openbsd-$(uname -r | cut -c 1,3)-base.pub -x SHA256.sig ports.tar.gz
+	cd /usr
+	tar xzf /tmp/ports.tar.gz
+	vim /etc/mk.conf
+		WRKOBJDIR=/usr/obj/ports
+		DISTDIR=/usr/distfiles
+		PACKAGE_REPOSITORY=/usr/packages
+		
+	cd /usr/ports
+		sqlite3 /usr/local/share/sqlports
+			 SELECT FULLPKGNAME,COMMENT FROM Ports WHERE COMMENT LIKE '%fonts%';
+				# Chose and install fots you'll want to have integrated at the XFCE. 
+				# How to install ports? -> https://www.openbsd.org/faq/ports/ports.html -> "Straightforward Installation: A Simple Example" part
+			 .quit
+			
+			  # Write down which fonts you installed with the full path. 
+			  # After each make install finish, a appropriate message will appear that you'll need to enable these fonts in order to use them.
+			  # We will add later these at the .xinitrc file
+}
+			  
+XINITRC{
+
+cp /usr/local/share/examples/xfce4-session/xinitrc ~/.xinitrc		
+	vim ~/.xinitrc
+		
+	    # Add at line 86 the fonts, installed from ports earlier, comma separated :
+				
+				#Setting up fonts for xfce4-session
+				xset +fp /usr/local/share/fonts/Liberation,/usr/local/share/fonts/mscorefonts,/usr/local/share/fonts/ghostscript,/usr/local/share/fonts/noto
+				xset +fp rehash
+		
+		# Do comment the following section:
+		
+					# check if we start xfce4-session with ck-launch-session. this is only
+					# required for starting from a console, not a login manager
+					#if test "x$XFCE4_SESSION_WITH_CK" = "x1"; then
+					#  if command -v ck-launch-session >/dev/null 2>&1; then
+					#    exec ck-launch-session xfce4-session
+					#  else
+					#    echo
+					#    echo "You have tried to start Xfce with consolekit support, but"
+					#    echo "ck-launch-session is not installed."
+					#    echo "Aborted startup..."
+					#    echo
+					#    exit 1
+					#  fi
+					#else
+					# start xfce4-session normally
+					#  exec xfce4-session
+					#fi
+		
+					# if we got here, then exec failed
+					#exit 1
+					
+		# Add at the bottom:
+		exec ck-launch-session startxfce4
+}
+
+SYSCTLCONF{		
+ # Optional bump for the XFCE usage. 
+ # The defaults are pretty much ok, but these days browsers are resource hogs...
+
+cp /etc/examples/sysctl.conf /etc/
+	# Add at the end:
+		kern.maxthread=8192
+}
+		
+LOGINCONF{
+ # Optional bump for the XFCE usage. 
+ # The defaults are pretty much ok, but these days browsers are resource hogs...
+vim /etc/login.conf
+
+//Find "staff:" section and change the values according your system. 
+//These are for my personal laptop, having 8GB of RAM.		
+
+		 staff:\
+				:datasize-cur=4096M:\
+				:datasize-max=infinity:\
+				:maxproc-max=1024:\
+				:maxproc-cur=512:\
+				:openfiles-cur=2048:\
+				:openfiles-max=4096:\
+				:stacksize-cur=8M:\
+				:ignorenologin:\
+				:requirehome@:\
+				:tc=default:
+}
+
+APM{
+ # Close the laptop's lid will lock the screen session as well
+ 
+mkdir /etc/apm
+	vim /etc/apm/suspend
+		
+		#!/bin/sh
+		pkill -USR1 xidle
+		
+chmod +x /etc/apm/suspend
+}
+
+FSTAB{
+
+ # Optional. Leeds to disk performance improvement but with minor caveats: 
+ # It is valid option when using a HDD. In case of SATA SSD / M.2 NVME, there is no need doing this. More information: https://marc.info/?t=157511975500003&r=1
+
+cp /etc/fstab.conf fstab.ORIG
+sed -i 's/rw,/rw,softdep,noatime,/g' /etc/fstab
+
+ # If something goes worng, /etc/fstab could be restored 
+ # by simple override with "cp /etc/fstab.ORIG /etc/fstab"
+ # BTW, this is HIGHLY recommended approach, when edit ANY system configuration file.
+
+ # BACKUP! BACKUP! BACKUP!
+}
+		
+		
+Got some ideas, examples and configurations from:
+
+https://sohcahtoa.org.uk/openbsd.html 
+https://www.linuxhelp.com/how-to-install-xfce-desktop
+https://www.c0ffee.net/blog/openbsd-on-a-laptop/
+https://man.openbsd.org/
+https://www.openbsd.org/faq/
+
+Thank you gyus!
+
+LAST BUT EXTREMLY IMPORTANT: Support OpenBSD!
+https://www.openbsdfoundation.org/donations.html
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
