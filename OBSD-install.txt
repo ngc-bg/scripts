@@ -52,7 +52,7 @@ vim /etc/rc.local
 }
 
 DOAS{	
-cp /etc/exmples/doas.conf /etc/ 
+cp /etc/examples/doas.conf /etc/ 
 
 	echo "permit nopass ngc as root cmd mount" >> /etc/doas.conf
 	echo "permit nopass ngc as root cmd umount" >> /etc/doas.conf
