@@ -171,7 +171,7 @@ cp /usr/local/share/examples/xfce4-session/xinitrc ~/.xinitrc
 
 SYSCTLCONF{		
  # Optional bump for the XFCE usage. 
- # The defaults are pretty much ok, but these days browsers are resource hogs...
+ # The defaults are ok, but these days browsers are resource hogs...
 
 cp /etc/examples/sysctl.conf /etc/
 	# Add at the end:
@@ -179,12 +179,12 @@ cp /etc/examples/sysctl.conf /etc/
 }
 		
 LOGINCONF{
- # Optional bump for the XFCE usage. 
+ # Optional memory bumping for the XFCE usage. 
  # The defaults are pretty much ok, but these days browsers are resource hogs...
 vim /etc/login.conf
 
-//Find "staff:" section and change the values according your system. 
-//These are for my personal laptop, having 8GB of RAM.		
+ # Start editing /etc/login.conf and find "staff:" section. Change the values according your system resources. 
+ #These are for my personal laptop, having 8GB of RAM.		
 
 		 staff:\
 				:datasize-cur=4096M:\
