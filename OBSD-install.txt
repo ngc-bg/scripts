@@ -68,7 +68,7 @@ usermod -G staff ngc
 cat /etc/group | grep ngc
 
  cp /etc/examples/wsconsctl.conf /etc/
-vim /etc/wsconstl.conf
+vim /etc/wsconsctl.conf
 	
 	keyboard.bell.volume=0			# Mute the annoy keyboard beep. Optional!
 	display.vblank=on               # enable vertical sync blank for screen burner
