@@ -141,6 +141,16 @@ XINITRC{
 cp /usr/local/share/examples/xfce4-session/xinitrc ~/.xinitrc		
 	vim ~/.xinitrc
 		
+        # To start a session bus instance of dbus-daemon (needed by applications
+        # installing /usr/local/share/dbus-1/services/*.service files), add the
+        # following lines to your Xsession script before starting the window manager
+        # (see dbus-launch(1) for more info) -- note that some session/login managers,
+        # like gnome-session(1) already handle this automatically.
+        
+			if [ -x /usr/local/bin/dbus-launch -a -z "${DBUS_SESSION_BUS_ADDRESS}" ]; then
+					eval `dbus-launch --sh-syntax --exit-with-x11`
+			fi
+			
 	    # Add at line 86 the fonts, installed from ports earlier, comma separated :
 				
 				#Setting up fonts for xfce4-session
