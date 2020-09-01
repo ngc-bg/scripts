@@ -221,7 +221,7 @@ FSTAB{
  # Optional. Leeds to disk performance improvement but with minor caveats: 
  # It is valid option when using a HDD. In case of SATA SSD / M.2 NVME, there is no need doing this. More information: https://marc.info/?t=157511975500003&r=1
 
-cp /etc/fstab.conf fstab.ORIG
+cp /etc/fstab fstab.ORIG
 sed -i 's/rw,/rw,softdep,noatime,/g' /etc/fstab
 
  # If something goes worng, /etc/fstab could be restored 
