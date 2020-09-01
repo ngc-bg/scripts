@@ -67,7 +67,7 @@ usermod -G staff ngc
  # verify the usermod changes	
 cat /etc/group | grep ngc
 
- cp /etc/examples/wsconsctl.conf /etc/
+ p /etc/examples/wsconsctl.conf /etc/
 vim /etc/wsconsctl.conf
 	
 	keyboard.bell.volume=0			# Mute the annoy keyboard beep. Optional!
@@ -123,7 +123,7 @@ PORTS{
 		WRKOBJDIR=/usr/obj/ports
 		DISTDIR=/usr/distfiles
 		PACKAGE_REPOSITORY=/usr/packages
-		
+	
 	cd /usr/ports
 		sqlite3 /usr/local/share/sqlports
 			 SELECT FULLPKGNAME,COMMENT FROM Ports WHERE COMMENT LIKE '%fonts%';
