@@ -78,6 +78,11 @@ vim /etc/wsconstl.conf
 	
 XORG{
 mkdir /etc/X11/xorg.conf.d
+
+# Assumption here is that your laptop/desktop is working with intel integrated video card.
+# In case not - this is not relevant! 
+# NB! OpenBSD do not have any kind of Nvidia drivers! https://www.youtube.com/watch?v=iYWzMvlj2RQ :))))
+
 vim /etc/X11/xorg.conf.d/20-intel.conf
 	
 	Section "Device"
