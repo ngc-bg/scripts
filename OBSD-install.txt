@@ -1,4 +1,4 @@
-pkg_add -ivV nano vim htop bash fish git colorls toad
+pkg_add -ivV nano vim htop bash fish git colorls toad wget lynx sqlports
 
 NANO{
 # Enable syntax highlighting
