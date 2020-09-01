@@ -13,7 +13,7 @@ FISH{
  
 vim ~/.config/fish	
     set -g -x fish_greeting ''
-	set -x TERM wsvt25 # In case of issues it could be substituted with 'xterm-256color' or plain 'xterm'
+	set -x TERM wsvt25 # In case of issues it could be substituted with wsvt25m; nxterm ot kterm. Still, the best working one is vt220 (default one with no colors ;))
 	alias ll="colorls -GlahAFpqFT"
 	alias mc="mc -a"
 	alias less="less -N -m -I"
