@@ -67,7 +67,7 @@ usermod -G staff ngc
  # verify the usermod changes	
 cat /etc/group | grep ngc
 
-cp /etc/examples/wsconstl.conf /etc/
+ cp /etc/examples/wsconsctl.conf /etc/
 vim /etc/wsconstl.conf
 	
 	keyboard.bell.volume=0			# Mute the annoy keyboard beep. Optional!
