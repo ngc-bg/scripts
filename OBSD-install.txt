@@ -38,12 +38,13 @@ rcctl set apmd flags -A
 rcctl start apmd
 rcctl enable messagebus
 rcctl start messagebus
+
  # These commands actually fill up the respective lines ar /etc/rc.conf.local	
 	vim /etc/rc.conf.local
 		apmd_flags=-A
-		dbus_enable=YES
+		multicast=YES
 		hotplugd_flags=
-		pkg_scripts=messagebus
+		pkg_scripts=messagebus avahi_daemon
 
 vim /etc/rc.local
 	/usr/local/bin/slim -d			# Starting Slim via /etc/rc.d/slim, somehow brings constant CPU usage. 
